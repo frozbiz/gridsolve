@@ -2,87 +2,11 @@
 
 WILDCARD = "*"
 
-##links = {(2,1):  (None,((3,1),2)),      #2-1
-##         (2,2):  (((4,1),3),((2,3),1)), #2-2
-##         (2,3):  (((4,1),3),((2,3),1)), #2-3
-##         (2,4):  (((4,1),3),((2,3),1)), #2-4
-##         (2,5):  (((4,1),3),((2,3),1)), #2-5
-##         (2,6):  (((4,1),3),((2,3),1)), #2-6
-##         (2,7):  (((4,1),3),((2,3),1)), #2-7
-##         (2,8):  (((4,1),3),((2,3),1)), #2-8
-##         (2,9):  (((4,1),3),((2,3),1)), #2-9
-##         (2,10): (((4,1),3),((2,3),1)), #2-10
-##         (2,11): (((4,1),3),((2,3),1)), #2-11
-##         (2,12): (((4,1),3),((2,3),1)), #2-12
-##         (2,13): (((4,1),3),((2,3),1)), #2-13
-##         (2,14): (((4,1),3),((2,3),1)), #2-14
-##         (2,15): (((4,1),3),((2,3),1)), #2-15
-##         (2,16): (((4,1),3),((2,3),1)), #2-16
-##         (2,17): (((4,1),3),((2,3),1)), #2-17
-##         (2,18): (((4,1),3),((2,3),1)), #2-18
-##         (2,19): (((4,1),3),((2,3),1)), #2-19
-##         (2,20): (((4,1),3),((2,3),1)), #2-20
-##         (2,21): (((4,1),3),((2,3),1)), #2-21
-##         (2,22): (((4,1),3),((2,3),1)), #2-22
-##         (2,23): (((4,1),3),((2,3),1)), #2-23
-##         (2,24): (((4,1),3),((2,3),1)), #2-24
-##         (3,1) : (((4,1),3),((2,3),1),((2,3),2)), #3-1
-##         }
-##
-links = {(2,1): (((2,3),1),((2,4),1)), #2-1
-         (2,2): (((2,3),2),((2,4),2)), #2-2
-         (2,3): (((2,1),1),((2,2),1)), #2-3
-         (2,4): (((2,1),2),((2,2),2)), #2-4
-         }
-
 def count_dict(keys):
     d = {}
     for key in keys:
         d[key] = d.get(key,0) + 1
     return d
-
-import grid
-g = grid.grid("grid.txt")
-
-links = g.links
-
-candidates = ((("ALPHA", "ALPHA"),
-               ("CHI", "RHO"),
-               ("CHI", "N"),
-               ("QOF", "E"),
-               ("QOF", "N"),
-               ("D", "BET"),
-               ("E", "MU"),
-               ("HE", "L"),
-               ("HE", "SHIN"),
-               ("MU", "D"),
-               ("MU", "V"),
-               ("MU", "L"),
-               ("NU", "B"),
-               ("NU", "R"),
-               ("NU", "Z"),
-               ("PI", "RHO"),
-               ("RHO", "P"),
-               ("RHO", "Z"),
-               ("XI", "PHI"),
-               ("SHIN", "E"),
-               ("TAU", "L"),
-               ("TAU", "R"),
-               ("YOD", "L"),
-               ("Z", "RHO"),
-               (WILDCARD,),
-               ),
-              )
-
-import wordlist
-
-candidates = wordlist.parse(wordlist.FILE, WILDCARD)
-
-candidate_sets = [ count_dict(n) for n in candidates ]
-
-answers = dict((key, [WILDCARD]*len(value)) for key,value in links.iteritems())
-
-unsolved = set(links)
 
 def partial_match(x,filt):
     if x == (WILDCARD,):
@@ -140,7 +64,7 @@ def transliterate(cands, dictMap):
 
 
 def solve(pos, unsolved_set, ans, cands, link_list):
-    l = len(link_list[pos]) - 2
+    l = len(link_list[pos]) - 1
     consts = ans[pos]
     if consts:
         possibilities = (x for (x,y) in cands[l].iteritems() if y > 0 and partial_match(x, consts))
@@ -195,16 +119,83 @@ def solve(pos, unsolved_set, ans, cands, link_list):
         else:
             yield temp_ans
 
-#        if solve(
+SIMPLE_TEST, END_TO_END_TEST, RIVALRIES, PAYROLL = range(4)
+
+mode = RIVALRIES
+
+if (mode == SIMPLE_TEST):
+    candidates = ((),
+                  (("ALPHA", "ALPHA"),
+                   ("CHI", "RHO"),
+                   ("CHI", "N"),
+                   ("QOF", "E"),
+                   ("QOF", "N"),
+                   ("D", "BET"),
+                   ("E", "MU"),
+                   ("HE", "L"),
+                   ("HE", "SHIN"),
+                   ("MU", "D"),
+                   ("MU", "V"),
+                   ("MU", "L"),
+                   ("NU", "B"),
+                   ("NU", "R"),
+                   ("NU", "Z"),
+                   ("PI", "RHO"),
+                   ("RHO", "P"),
+                   ("RHO", "Z"),
+                   ("XI", "PHI"),
+                   ("SHIN", "E"),
+                   ("TAU", "L"),
+                   ("TAU", "R"),
+                   ("YOD", "L"),
+                   ("Z", "RHO"),
+                   ),
+                  )
+
+    links = {(2,1): (((2,3),1),((2,4),1)), #2-1
+             (2,2): (((2,3),2),((2,4),2)), #2-2
+             (2,3): (((2,1),1),((2,2),1)), #2-3
+             (2,4): (((2,1),2),((2,2),2)), #2-4
+             }
+else:
+    import wordlist
+    import grid
+    if mode == END_TO_END_TEST:
+        g = grid.grid("grid_square.txt")
+        candidates = wordlist.parse_csv(wordlist.FILE, WILDCARD)
+    elif mode == PAYROLL:
+        g = grid.grid("grid.txt")
+        candidates = wordlist.parse_csv(wordlist.FILE, WILDCARD)
+    elif mode == RIVALRIES:
+        g = grid.grid("grid_rivalries.txt")
+        candidates = wordlist.parse_txt(wordlist.FILE_TXT, WILDCARD)
+
+    links = g.links
+
+candidate_sets = [ count_dict(n) for n in candidates ]
+
+answers = dict((key, [WILDCARD]*len(value)) for key,value in links.iteritems())
+
+unsolved = set(links)
 
 first_pos = set(unsolved).pop()
 
+print "Trying raw"
 for solution in solve(first_pos, unsolved.difference((first_pos,)), answers, candidate_sets, links):
     print "Solved:"
-    print solution
-    
-##for solution in solve(first_pos, unsolved.difference((first_pos,)), answers, transliterate(candidate_sets, trans_dict), links):
-##    print "Solved:"
-##    print solution
-##
+    if (mode == SIMPLE_TEST):
+        print solution
+    else:
+        g.printSolution(solution)
+
+if mode != RIVALRIES:
+    tlate = transliterate(candidate_sets, trans_dict)
+    print "Trying translated"
+    for solution in solve(first_pos, unsolved.difference((first_pos,)), answers, tlate, links):
+        print "Solved:"
+        if (mode == SIMPLE_TEST):
+            print solution
+        else:
+            g.printSolution(solution)
+
 

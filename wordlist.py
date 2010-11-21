@@ -1,12 +1,34 @@
 import csv
+def parse_txt(filename, wildcard = "*"):
+    words = {}
+    max_len = 0
+    with open(filename, "rb") as infile:
+        for line in infile:
+            word = line.strip()
+            l = len(word)
+            if (l > 0):
+                words.setdefault(len(word),[]).append(word)
+    
+    candidates = []
+    l = len(words)
+    ix = 1
+    while l:
+        if (ix in words):
+            candidates.append(tuple(words[ix]))
+            l -= 1
+        else:
+            candidates.append(())
+        ix += 1
 
-def parse(filename, wildcard = "*"):
+    return candidates
+
+def parse_csv(filename, wildcard = "*"):
     infile = open(filename, "rb")
     csv_in = csv.reader(infile)
 
     words = {}
     section = -1
-    max_section = 0
+    max_section = -1
     for record in csv_in:
         if (not record[0]):
             section = -1
@@ -30,12 +52,14 @@ def parse(filename, wildcard = "*"):
     infile.close()
 
     candidates = []
-    for ix in xrange(1,max_section + 1):
+    for ix in xrange(0,max_section + 1):
         candidates.append(tuple(words.get(ix,tuple())))
 
     return candidates
 
 FILE = "164.csv"
+FILE_TXT = "words_rivalries.txt"
 
 if __name__ == "__main__":
-    print parse(FILE)
+    print parse_csv(FILE)
+    print parse_txt(FILE_TXT)

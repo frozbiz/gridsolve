@@ -5,6 +5,8 @@ class grid:
     def __init__(self, filename=None, *parse_args, **kargs):
         self.links = {}
         self.extraction = []
+        self.rows = 0
+        self.cols = 0
         if (filename):
             self.parse(filename, *parse_args, **kargs)
 
@@ -14,6 +16,8 @@ class grid:
         vert_dict = {}
         links = {}
         extraction = []
+        max_line = -1
+        row = -1
         with open(filename) as infile:
             # Scroll through the file to figure out how the layout looks
             for row,line in enumerate(infile):
@@ -43,6 +47,10 @@ class grid:
                 for key in vert_in_prog.keys():
                     if (key > col):
                         del vert_in_prog[key]
+                max_line = max(max_line, col)
+
+        self.rows = row + 1
+        self.cols = max_line + 1
 
         # Record the extraction
         self.extraction = extraction
@@ -83,12 +91,36 @@ class grid:
 
         self.links = links
 
-        
-        
+    def printSolution(self, answers):
+        # Create a two dimension matrix of the right size
+        out = [list(x) for x in [[' '] * self.cols] * self.rows]
+        for pos,word in answers.iteritems():
+            (hv,coords) = pos
+            inc = 0 if hv == grid.VERT else 1
+            coords = list(coords)
+            for ch in word:
+                (r,c) = coords
+                out[r][c] = ch
+                coords[inc] += 1
+
+        for line in out:
+            print "".join(line)
+
+        if (self.extraction):
+            print
+            for (r,c) in self.extraction:
+                print out[r][c],
+            print
+
 
 FILE = "grid_simple.txt"
 
+TEST_2 = "grid_rivalries.txt"
+
 if __name__ == "__main__":
     g = grid(FILE)
-
-    
+    ans = dict((key, "#"*len(value)) for key,value in g.links.iteritems())
+    g.printSolution(ans)
+    g = grid(TEST_2)
+    ans = dict((key, "#"*len(value)) for key,value in g.links.iteritems())
+    g.printSolution(ans)
