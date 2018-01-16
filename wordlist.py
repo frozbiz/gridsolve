@@ -22,7 +22,7 @@ def parse_txt(filename, wildcard = "*"):
 
     return candidates
 
-def parse_csv(filename, wildcard = "*"):
+def parse_csv(filename, wildcard = "*", confidence_factor = 1):
     infile = open(filename, "rb")
     csv_in = csv.reader(infile)
 
@@ -38,11 +38,17 @@ def parse_csv(filename, wildcard = "*"):
                 section = int(record[2])
                 max_section = max(section, max_section)
                 words.setdefault(section,[])
-            except:
+            except ValueError:
+##                print record[0]
                 pass
             continue
+        try:
+            confidence = int(record[1])
+        except ValueError:
+            confidence = 10
 
-        if (record[0] == '?'):
+        if (record[0] == '?' or confidence < confidence_factor):
+##            print record[0]
             word = (wildcard,)
         else:
             word = tuple(record[2:3+section])
@@ -59,7 +65,9 @@ def parse_csv(filename, wildcard = "*"):
 
 FILE = "164.csv"
 FILE_TXT = "words_rivalries.txt"
+TREASURE_TXT = "treasure_chest.txt"
 
 if __name__ == "__main__":
     print parse_csv(FILE)
     print parse_txt(FILE_TXT)
+    print parse_txt(TREASURE_TXT)

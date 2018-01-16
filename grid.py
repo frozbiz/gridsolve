@@ -91,7 +91,7 @@ class grid:
 
         self.links = links
 
-    def printSolution(self, answers):
+    def printSolution(self, answers, ordering = None):
         # Create a two dimension matrix of the right size
         out = [list(x) for x in [[' '] * self.cols] * self.rows]
         for pos,word in answers.iteritems():
@@ -108,13 +108,16 @@ class grid:
 
         if (self.extraction):
             print
-            for (r,c) in self.extraction:
-                print out[r][c],
-            print
+            if ordering == None:
+                ordering = range(1,len(self.extraction)+1)
+            ans = range(len(self.extraction))
+            for ix,(r,c) in enumerate(self.extraction):
+                print "pos=%d, (%d,%d)" % (ordering[ix],r,c)
+                ans[ordering[ix]-1] = out[r][c]
+            print ans
 
 
 FILE = "grid_simple.txt"
-
 TEST_2 = "grid_rivalries.txt"
 
 if __name__ == "__main__":
